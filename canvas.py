@@ -3,18 +3,16 @@ import random
 import pygame
 
 # 初始化游戏
-def initialize_game():
+def initialize_game(num_planes):
     grid = np.zeros((10, 10), dtype=int)
-    planes = []
-    for _ in range(3):
+    for _ in range(num_planes):
         while True:
             x, y = random.randint(0, 9), random.randint(0, 9)
             orientation = random.choice(['up', 'down', 'left', 'right'])
             if can_place_plane(grid, x, y, orientation):
                 place_plane(grid, x, y, orientation)
-                planes.append((x, y, orientation))
                 break
-    return grid, planes
+    return grid
 
 # 定义飞机的形状（相对坐标）
 PLANE_SHAPES = {
@@ -76,6 +74,7 @@ def place_plane(grid, x, y, orientation):
             grid[nx][ny] = 1
     return grid
 
+
 # 绘制游戏界面
 def draw_grid(screen, grid) -> None:
     # 使用Pygame绘制网格
@@ -118,19 +117,24 @@ def handle_input(event, grid) -> None:
         else:
             grid[i][j] = 4 # hit nothing
 
-# 判断游戏状态
-def check_win(grid, planes, hits):
-    # hits 是一个集合，存储玩家点击过的机头坐标
-    # planes 是一个列表，存储三架飞机的机头坐标
-    plane_heads = {(x, y) for (x, y, _) in planes}  # 提取所有机头坐标
-    return hits.issuperset(plane_heads)  # 检查是否命中所有机头
 
-'''# 主游戏循环
+# 判断游戏状态
+def check_win(grid, num_plane):
+    count = 0
+    for i in range(10):
+        for j in range(10):
+            if grid[i][j] == 5:
+                count += 1
+
+    return count == num_plane
+
+
+# 主游戏循环
 def main():
     pygame.init()
     screen = pygame.display.set_mode((400, 400))
-    grid, planes = initialize_game()
-    hits = set()
+    num_plane = 3
+    grid = initialize_game(num_plane)
     running = True
     while running:
         for event in pygame.event.get():
@@ -138,12 +142,12 @@ def main():
                 running = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 handle_input(event, grid)
-                if check_win(grid, planes,hits):
+                if check_win(grid, num_plane):
                     print("You win!")
                     running = False
         draw_grid(screen, grid)
         pygame.display.flip()
-    pygame.quit()'''
+    pygame.quit()
 
 def test_initialize_game():
     grid, planes = initialize_game()
@@ -157,4 +161,4 @@ def test_initialize_game():
 
 
 if __name__ == "__main__":
-    test_initialize_game()
+    main()
